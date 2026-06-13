@@ -14,8 +14,10 @@ export default function SilhouetteOverlay({ view = 'front', bodyDetected = false
         style={{ opacity: bodyDetected ? 0.9 : 0.45 }}
         preserveAspectRatio="xMidYMid meet"
       >
-        {/* Side profile silhouette */}
-        <g fill="none" stroke={color} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+        {/* Side profile silhouette — mirrored so figure faces left, matching the
+            CSS-flipped video where "right shoulder toward camera" = face on left */}
+        <g fill="none" stroke={color} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"
+           transform="translate(200,0) scale(-1,1)">
           {/* Head */}
           <ellipse cx="108" cy="45" rx="22" ry="26" />
           {/* Neck */}
@@ -27,7 +29,7 @@ export default function SilhouetteOverlay({ view = 'front', bodyDetected = false
           <line x1="88" y1="220" x2="112" y2="220" />
           {/* Arm (front) */}
           <path d="M 120 95 Q 128 130 130 160 Q 132 175 130 195" />
-          {/* Leg */}
+          {/* Legs */}
           <line x1="100" y1="220" x2="98" y2="310" />
           <line x1="98" y1="310" x2="96" y2="370" />
           <line x1="96" y1="370" x2="115" y2="372" />
