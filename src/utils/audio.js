@@ -1,3 +1,28 @@
+// Singleton AudioContext — browsers cap concurrent instances (~6 on iOS)
+let _ctx = null
+
+function getCtx() {
+  if (!_ctx) {
+    _ctx = new (window.AudioContext || window.webkitAudioContext)()
+  }
+  // AudioContext starts suspended on iOS until resumed inside a gesture
+  if (_ctx.state === 'suspended') _ctx.resume()
+  return _ctx
+}
+
+/**
+ * Must be called once from a user gesture (e.g. button tap) before any audio.
+ * Unlocks both the Web Audio API and speechSynthesis on iOS Safari.
+ */
+export function initAudio() {
+  try { getCtx() } catch {}
+  if (!('speechSynthesis' in window)) return
+  // A zero-volume utterance inside a gesture unlocks the speech engine for the session
+  const u = new SpeechSynthesisUtterance(' ')
+  u.volume = 0
+  window.speechSynthesis.speak(u)
+}
+
 export function speak(text, rate = 0.92) {
   if (!('speechSynthesis' in window)) return
   window.speechSynthesis.cancel()
@@ -9,7 +34,7 @@ export function speak(text, rate = 0.92) {
 
 export function beep(freq = 880, dur = 0.12, delay = 0) {
   try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)()
+    const ctx = getCtx()
     const osc = ctx.createOscillator()
     const gain = ctx.createGain()
     osc.connect(gain)
@@ -24,14 +49,12 @@ export function beep(freq = 880, dur = 0.12, delay = 0) {
   } catch {}
 }
 
-// Three ascending beeps — played when scan or issue is resolved
 export function successBeeps() {
   beep(660, 0.1, 0)
   beep(880, 0.1, 0.15)
   beep(1100, 0.18, 0.3)
 }
 
-// Single soft tick for each countdown second
 export function tickBeep() {
   beep(440, 0.07, 0)
 }

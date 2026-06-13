@@ -15,6 +15,7 @@ export default function ScanScreen({ view = 'front', onScanComplete, onBack }) {
   const [countdown, setCountdown] = useState(FRONT_COUNTDOWN)
   const [progress, setProgress] = useState(0)
   const landmarkSamplesRef = useRef([])
+  const doneDataRef = useRef(null)
   const timerRef = useRef(null)
   const detectedRef = useRef(false)
   const spokenRef = useRef(false)
@@ -22,11 +23,14 @@ export default function ScanScreen({ view = 'front', onScanComplete, onBack }) {
   const COUNTDOWN_SECS = view === 'side' ? SIDE_COUNTDOWN : FRONT_COUNTDOWN
   const facingMode = 'user'
 
-  // Announce instructions when side scan mounts
+  // Announce instructions when side scan mounts — delay so it doesn't clash with
+  // any speech still finishing on TransitionScreen
   useEffect(() => {
     if (view === 'side' && !spokenRef.current) {
       spokenRef.current = true
-      speak('Rotate 90 degrees so your right shoulder points toward the camera. Keep your full body in frame.')
+      const t = setTimeout(() =>
+        speak('Rotate so your right shoulder faces the camera. Keep your full body in frame.'), 1200)
+      return () => clearTimeout(t)
     }
   }, [view])
 
@@ -71,6 +75,16 @@ export default function ScanScreen({ view = 'front', onScanComplete, onBack }) {
     return () => clearInterval(timerRef.current)
   }, [phase, COUNTDOWN_SECS])
 
+  // Side scan done — hold on completion overlay, then advance
+  useEffect(() => {
+    if (phase !== 'done' || view !== 'side') return
+    const t = setTimeout(() => {
+      if (doneDataRef.current !== null) onScanComplete(doneDataRef.current)
+    }, 2000)
+    return () => clearTimeout(t)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase, view])
+
   // Scanning — collect samples
   useEffect(() => {
     if (phase !== 'scanning') return
@@ -85,12 +99,15 @@ export default function ScanScreen({ view = 'front', onScanComplete, onBack }) {
       setProgress(Math.min(100, (collected / total) * 100))
       if (collected >= total) {
         clearInterval(interval)
+        const averaged = averageLandmarks(landmarkSamplesRef.current)
+        doneDataRef.current = averaged
         setPhase('done')
         successBeeps()
         speak(view === 'side' ? 'Side scan complete. Analyzing your posture.' : 'Front scan complete.')
-        const averaged = averageLandmarks(landmarkSamplesRef.current)
         stopCamera()
-        onScanComplete(averaged)
+        // Side scan: hold on completion screen briefly so the user sees + hears it
+        // Front scan: advance immediately — TransitionScreen is the pause
+        if (view !== 'side') onScanComplete(averaged)
       }
     }, SAMPLE_INTERVAL_MS)
     return () => clearInterval(interval)
@@ -112,6 +129,21 @@ export default function ScanScreen({ view = 'front', onScanComplete, onBack }) {
       />
       <div className="absolute inset-0 bg-black/20 pointer-events-none" />
       <SilhouetteOverlay view={view} bodyDetected={phase === 'countdown' || phase === 'scanning' || phase === 'done'} />
+
+      {/* Side scan completion overlay — gives the user a clear "done" moment */}
+      {phase === 'done' && view === 'side' && (
+        <div className="absolute inset-0 z-30 bg-black/70 flex flex-col items-center justify-center gap-5">
+          <div className="w-24 h-24 rounded-full bg-green-500/25 flex items-center justify-center">
+            <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+          </div>
+          <div className="text-center px-8">
+            <p className="text-white text-2xl font-bold">Side scan complete</p>
+            <p className="text-slate-400 text-sm mt-1">Analyzing your posture…</p>
+          </div>
+        </div>
+      )}
 
       {/* Top bar */}
       <div className="relative z-10 flex items-center justify-between px-4 pt-12 pb-4">

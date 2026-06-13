@@ -1,3 +1,5 @@
+import { initAudio } from '../utils/audio'
+
 export default function SetupScreen({ onStart, onBack }) {
   return (
     <div className="flex flex-col min-h-screen bg-white screen-enter">
@@ -89,7 +91,7 @@ export default function SetupScreen({ onStart, onBack }) {
             </p>
           </div>
           <button
-            onClick={onStart}
+            onClick={() => { initAudio(); onStart() }}
             className="w-full bg-slate-900 text-white rounded-2xl py-4 text-base font-semibold tracking-tight active:scale-95 transition-transform"
           >
             Start session — allow camera
