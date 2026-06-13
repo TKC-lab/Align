@@ -4,7 +4,9 @@
       "Bash(npm create *)",
       "Bash(cat)",
       "Bash(bash /tmp/vite-init.sh)",
-      "mcp__Claude_Preview__preview_start"
+      "mcp__Claude_Preview__preview_start",
+      "Bash(git add *)",
+      "Bash(git commit *)"
     ]
   }
 }
