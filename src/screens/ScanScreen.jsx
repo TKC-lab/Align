@@ -16,7 +16,7 @@ export default function ScanScreen({ view = 'front', onScanComplete, onBack }) {
   const timerRef = useRef(null)
   const detectedRef = useRef(false)
 
-  const facingMode = 'environment'  // back camera for propped phone scanning
+  const facingMode = 'user'
 
   useEffect(() => {
     startCamera(facingMode)

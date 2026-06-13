@@ -20,7 +20,7 @@ export default function CorrectionScreen({ issues, initialScore, onComplete }) {
   const { landmarks, videoRef, isReady, startCamera, stopCamera, onResultsRef } = useMediaPipe()
   const issue = issues[currentIdx]
 
-  const facingMode = 'environment'
+  const facingMode = 'user'
 
   useEffect(() => {
     startCamera(facingMode)
