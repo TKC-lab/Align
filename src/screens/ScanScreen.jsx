@@ -87,6 +87,7 @@ export default function ScanScreen({ view = 'front', onScanComplete, onBack }) {
         clearInterval(interval)
         setPhase('done')
         successBeeps()
+        speak(view === 'side' ? 'Side scan complete. Analyzing your posture.' : 'Front scan complete.')
         const averaged = averageLandmarks(landmarkSamplesRef.current)
         stopCamera()
         onScanComplete(averaged)
