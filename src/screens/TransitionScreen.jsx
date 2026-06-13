@@ -3,7 +3,7 @@ import { speak } from '../utils/audio'
 
 export default function TransitionScreen({ onContinue }) {
   useEffect(() => {
-    speak('Front scan complete. Now turn to your right side and hold still.')
+    speak('Front scan complete. Rotate 90 degrees so your right shoulder points toward the camera.')
     const t = setTimeout(onContinue, 5000)
     return () => clearTimeout(t)
   }, [onContinue])
@@ -17,7 +17,7 @@ export default function TransitionScreen({ onContinue }) {
       </div>
       <div className="text-center space-y-2">
         <h2 className="text-2xl font-bold text-white">Front scan complete</h2>
-        <p className="text-slate-400 text-base">Now turn to your right side</p>
+        <p className="text-slate-400 text-base">Rotate so your <strong className="text-white">right shoulder</strong> points toward the camera</p>
       </div>
 
       {/* Rotation diagram */}

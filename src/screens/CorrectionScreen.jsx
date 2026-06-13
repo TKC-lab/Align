@@ -33,7 +33,7 @@ export default function CorrectionScreen({ issues, initialScore, onComplete }) {
     if (!issue) return
     if (spokenCueRef.current === issue.id) return
     spokenCueRef.current = issue.id
-    const orientation = issue.view === 'side' ? 'Turn to your side.' : 'Face the camera.'
+    const orientation = issue.view === 'side' ? 'Right shoulder toward the camera.' : 'Face the camera.'
     const t = setTimeout(() => speak(`${orientation} ${issue.coachingCue}`), 600)
     return () => clearTimeout(t)
   }, [issue])
@@ -137,7 +137,7 @@ export default function CorrectionScreen({ issues, initialScore, onComplete }) {
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
                     <path d="M9 18l6-6-6-6"/>
                   </svg>
-                  Turn to your side
+                  Right shoulder to camera
                 </span>
               ) : (
                 <span className="flex items-center gap-1.5 bg-green-500/25 border border-green-400/50 text-green-300 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">

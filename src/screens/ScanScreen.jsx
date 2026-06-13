@@ -26,7 +26,7 @@ export default function ScanScreen({ view = 'front', onScanComplete, onBack }) {
   useEffect(() => {
     if (view === 'side' && !spokenRef.current) {
       spokenRef.current = true
-      speak('Turn to your right side. Keep your full body in frame.')
+      speak('Rotate 90 degrees so your right shoulder points toward the camera. Keep your full body in frame.')
     }
   }, [view])
 
@@ -99,7 +99,7 @@ export default function ScanScreen({ view = 'front', onScanComplete, onBack }) {
 
   const label = view === 'front'
     ? 'Face the camera — make sure your full body is visible'
-    : 'Turn to your right — show your side profile'
+    : 'Rotate so your right shoulder faces the camera'
 
   return (
     <div className="fixed inset-0 bg-black flex flex-col">
@@ -138,7 +138,7 @@ export default function ScanScreen({ view = 'front', onScanComplete, onBack }) {
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
             </svg>
-            <p className="text-white text-xs font-semibold">Turn to your right side — audio will guide you</p>
+            <p className="text-white text-xs font-semibold">Rotate so your right shoulder faces the camera — audio will guide you</p>
           </div>
         </div>
       )}
