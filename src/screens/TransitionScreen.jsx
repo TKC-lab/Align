@@ -1,9 +1,10 @@
 import { useEffect } from 'react'
+import { speak } from '../utils/audio'
 
-/** Brief screen shown between front and side scan */
 export default function TransitionScreen({ onContinue }) {
   useEffect(() => {
-    const t = setTimeout(onContinue, 3000)
+    speak('Front scan complete. Now turn to your right side and hold still.')
+    const t = setTimeout(onContinue, 5000)
     return () => clearTimeout(t)
   }, [onContinue])
 
@@ -18,32 +19,35 @@ export default function TransitionScreen({ onContinue }) {
         <h2 className="text-2xl font-bold text-white">Front scan complete</h2>
         <p className="text-slate-400 text-base">Now turn to your right side</p>
       </div>
-      <div className="flex gap-2 mt-2">
-        {/* Rotation illustration */}
-        <svg viewBox="0 0 120 80" width="160" fill="none">
-          {/* Person front */}
-          <circle cx="28" cy="22" r="10" stroke="white" strokeWidth="2" opacity="0.5"/>
-          <line x1="28" y1="32" x2="28" y2="46" stroke="white" strokeWidth="2" opacity="0.5" strokeLinecap="round"/>
-          <line x1="14" y1="48" x2="42" y2="48" stroke="white" strokeWidth="2" opacity="0.5" strokeLinecap="round"/>
-          <line x1="18" y1="46" x2="14" y2="65" stroke="white" strokeWidth="2" opacity="0.5" strokeLinecap="round"/>
-          <line x1="38" y1="46" x2="42" y2="65" stroke="white" strokeWidth="2" opacity="0.5" strokeLinecap="round"/>
-          <line x1="22" y1="48" x2="20" y2="70" stroke="white" strokeWidth="2" opacity="0.5" strokeLinecap="round"/>
-          <line x1="34" y1="48" x2="36" y2="70" stroke="white" strokeWidth="2" opacity="0.5" strokeLinecap="round"/>
-          {/* Arrow */}
-          <path d="M 52 40 Q 60 28 68 40" stroke="#22c55e" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
-          <path d="M 66 36 L 68 40 L 64 42" stroke="#22c55e" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
-          {/* Person side */}
-          <circle cx="92" cy="22" r="10" stroke="white" strokeWidth="2"/>
-          <line x1="92" y1="32" x2="92" y2="46" stroke="white" strokeWidth="2" strokeLinecap="round"/>
-          <line x1="80" y1="48" x2="100" y2="48" stroke="white" strokeWidth="2" strokeLinecap="round"/>
-          <line x1="84" y1="46" x2="80" y2="65" stroke="white" strokeWidth="2" strokeLinecap="round"/>
-          <line x1="86" y1="48" x2="84" y2="70" stroke="white" strokeWidth="2" strokeLinecap="round"/>
-          <line x1="98" y1="48" x2="100" y2="70" stroke="white" strokeWidth="2" strokeLinecap="round"/>
-        </svg>
-      </div>
+
+      {/* Rotation diagram */}
+      <svg viewBox="0 0 140 90" width="180" fill="none">
+        {/* Person front — faded */}
+        <circle cx="28" cy="22" r="10" stroke="white" strokeWidth="2" opacity="0.4"/>
+        <line x1="28" y1="32" x2="28" y2="46" stroke="white" strokeWidth="2" opacity="0.4" strokeLinecap="round"/>
+        <line x1="14" y1="48" x2="42" y2="48" stroke="white" strokeWidth="2" opacity="0.4" strokeLinecap="round"/>
+        <line x1="18" y1="46" x2="14" y2="68" stroke="white" strokeWidth="2" opacity="0.4" strokeLinecap="round"/>
+        <line x1="38" y1="46" x2="42" y2="68" stroke="white" strokeWidth="2" opacity="0.4" strokeLinecap="round"/>
+        <line x1="22" y1="48" x2="20" y2="72" stroke="white" strokeWidth="2" opacity="0.4" strokeLinecap="round"/>
+        <line x1="34" y1="48" x2="36" y2="72" stroke="white" strokeWidth="2" opacity="0.4" strokeLinecap="round"/>
+        {/* Arrow */}
+        <path d="M 54 44 Q 70 24 86 44" stroke="#22c55e" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
+        <path d="M 83 40 L 86 44 L 82 47" stroke="#22c55e" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+        {/* Person side — bright */}
+        <circle cx="112" cy="22" r="10" stroke="white" strokeWidth="2"/>
+        <line x1="110" y1="32" x2="108" y2="46" stroke="white" strokeWidth="2" strokeLinecap="round"/>
+        <line x1="96" y1="50" x2="118" y2="50" stroke="white" strokeWidth="2" strokeLinecap="round"/>
+        <line x1="100" y1="48" x2="96" y2="68" stroke="white" strokeWidth="2" strokeLinecap="round"/>
+        <line x1="104" y1="50" x2="102" y2="72" stroke="white" strokeWidth="2" strokeLinecap="round"/>
+        <line x1="116" y1="50" x2="118" y2="72" stroke="white" strokeWidth="2" strokeLinecap="round"/>
+        {/* Ear dot to show side profile */}
+        <circle cx="120" cy="20" r="3" fill="#22c55e"/>
+      </svg>
+
+      <p className="text-slate-500 text-sm">Auto-continuing in a moment…</p>
       <button
         onClick={onContinue}
-        className="mt-2 bg-green-500 text-white rounded-2xl px-8 py-3 font-semibold text-sm active:scale-95 transition-transform"
+        className="bg-green-500 text-white rounded-2xl px-8 py-3 font-semibold text-sm active:scale-95 transition-transform"
       >
         I'm ready
       </button>

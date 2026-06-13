@@ -3,33 +3,45 @@ import { useMediaPipe } from '../hooks/useMediaPipe'
 import SilhouetteOverlay from '../components/SilhouetteOverlay'
 import CountdownRing from '../components/CountdownRing'
 import { bodyInFrame } from '../utils/posture'
+import { speak, tickBeep, successBeeps } from '../utils/audio'
 
-const COUNTDOWN_SECS = 5
+const FRONT_COUNTDOWN = 5
+const SIDE_COUNTDOWN = 8   // longer — gives time to settle after turning
 const SAMPLE_INTERVAL_MS = 200
 
 export default function ScanScreen({ view = 'front', onScanComplete, onBack }) {
   const { landmarks, videoRef, isReady, error, startCamera, stopCamera, onResultsRef } = useMediaPipe()
-  const [phase, setPhase] = useState('waiting')   // waiting | countdown | scanning | done
-  const [countdown, setCountdown] = useState(COUNTDOWN_SECS)
+  const [phase, setPhase] = useState('waiting')
+  const [countdown, setCountdown] = useState(FRONT_COUNTDOWN)
   const [progress, setProgress] = useState(0)
   const landmarkSamplesRef = useRef([])
   const timerRef = useRef(null)
   const detectedRef = useRef(false)
+  const spokenRef = useRef(false)
 
+  const COUNTDOWN_SECS = view === 'side' ? SIDE_COUNTDOWN : FRONT_COUNTDOWN
   const facingMode = 'user'
+
+  // Announce instructions when side scan mounts
+  useEffect(() => {
+    if (view === 'side' && !spokenRef.current) {
+      spokenRef.current = true
+      speak('Turn to your right side. Keep your full body in frame.')
+    }
+  }, [view])
 
   useEffect(() => {
     startCamera(facingMode)
     return () => stopCamera()
-  }, [startCamera, stopCamera, facingMode])
+  }, [startCamera, stopCamera])
 
-  // Watch landmarks for body detection
   const handleResults = useCallback((lm) => {
     if (phase !== 'waiting' && phase !== 'countdown') return
     const detected = bodyInFrame(lm, view)
     if (detected && !detectedRef.current) {
       detectedRef.current = true
       setPhase('countdown')
+      speak('Hold still')
     } else if (!detected && detectedRef.current && phase === 'waiting') {
       detectedRef.current = false
     }
@@ -39,7 +51,7 @@ export default function ScanScreen({ view = 'front', onScanComplete, onBack }) {
     onResultsRef.current = handleResults
   }, [handleResults, onResultsRef])
 
-  // Countdown logic
+  // Countdown — speak each number and tick
   useEffect(() => {
     if (phase !== 'countdown') return
     setCountdown(COUNTDOWN_SECS)
@@ -47,17 +59,22 @@ export default function ScanScreen({ view = 'front', onScanComplete, onBack }) {
     timerRef.current = setInterval(() => {
       secs -= 1
       setCountdown(secs)
+      if (secs > 0) {
+        tickBeep()
+        if (secs <= 3) speak(String(secs))
+      }
       if (secs <= 0) {
         clearInterval(timerRef.current)
         setPhase('scanning')
       }
     }, 1000)
     return () => clearInterval(timerRef.current)
-  }, [phase])
+  }, [phase, COUNTDOWN_SECS])
 
-  // Scanning — collect landmark samples
+  // Scanning — collect samples
   useEffect(() => {
     if (phase !== 'scanning') return
+    speak('Scanning')
     landmarkSamplesRef.current = []
     let collected = 0
     const total = (COUNTDOWN_SECS * 1000) / SAMPLE_INTERVAL_MS
@@ -69,7 +86,7 @@ export default function ScanScreen({ view = 'front', onScanComplete, onBack }) {
       if (collected >= total) {
         clearInterval(interval)
         setPhase('done')
-        // Average the samples to get stable landmarks
+        successBeeps()
         const averaged = averageLandmarks(landmarkSamplesRef.current)
         stopCamera()
         onScanComplete(averaged)
@@ -85,19 +102,14 @@ export default function ScanScreen({ view = 'front', onScanComplete, onBack }) {
 
   return (
     <div className="fixed inset-0 bg-black flex flex-col">
-      {/* Video feed */}
       <video
         ref={videoRef}
         playsInline
         muted
         className="absolute inset-0 w-full h-full object-cover"
-        style={{ transform: 'scaleX(-1)' }}  // mirror for front-cam feel
+        style={{ transform: 'scaleX(-1)' }}
       />
-
-      {/* Darken edges */}
       <div className="absolute inset-0 bg-black/20 pointer-events-none" />
-
-      {/* Silhouette overlay */}
       <SilhouetteOverlay view={view} bodyDetected={phase === 'countdown' || phase === 'scanning' || phase === 'done'} />
 
       {/* Top bar */}
@@ -117,6 +129,18 @@ export default function ScanScreen({ view = 'front', onScanComplete, onBack }) {
         </div>
         <div className="w-9" />
       </div>
+
+      {/* Side scan reminder — persistent banner at top */}
+      {view === 'side' && phase === 'waiting' && (
+        <div className="relative z-10 mx-4">
+          <div className="bg-green-600/80 backdrop-blur-sm rounded-xl px-4 py-2.5 flex items-center gap-2">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            <p className="text-white text-xs font-semibold">Turn to your right side — audio will guide you</p>
+          </div>
+        </div>
+      )}
 
       {/* Status area */}
       <div className="relative z-10 flex-1 flex flex-col items-center justify-end pb-16 gap-4">
@@ -165,17 +189,10 @@ function averageLandmarks(samples) {
   const validSamples = samples.filter(s => s && s.length)
   if (!validSamples.length) return null
   const count = validSamples.length
-  const avg = validSamples[0].map((_, i) => {
-    const xs = validSamples.map(s => s[i]?.x ?? 0)
-    const ys = validSamples.map(s => s[i]?.y ?? 0)
-    const zs = validSamples.map(s => s[i]?.z ?? 0)
-    const vs = validSamples.map(s => s[i]?.visibility ?? 1)
-    return {
-      x: xs.reduce((a, b) => a + b, 0) / count,
-      y: ys.reduce((a, b) => a + b, 0) / count,
-      z: zs.reduce((a, b) => a + b, 0) / count,
-      visibility: vs.reduce((a, b) => a + b, 0) / count,
-    }
-  })
-  return avg
+  return validSamples[0].map((_, i) => ({
+    x: validSamples.reduce((s, f) => s + (f[i]?.x ?? 0), 0) / count,
+    y: validSamples.reduce((s, f) => s + (f[i]?.y ?? 0), 0) / count,
+    z: validSamples.reduce((s, f) => s + (f[i]?.z ?? 0), 0) / count,
+    visibility: validSamples.reduce((s, f) => s + (f[i]?.visibility ?? 1), 0) / count,
+  }))
 }
