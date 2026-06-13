@@ -33,7 +33,8 @@ export default function CorrectionScreen({ issues, initialScore, onComplete }) {
     if (!issue) return
     if (spokenCueRef.current === issue.id) return
     spokenCueRef.current = issue.id
-    const t = setTimeout(() => speak(issue.coachingCue), 600)
+    const orientation = issue.view === 'side' ? 'Turn to your side.' : 'Face the camera.'
+    const t = setTimeout(() => speak(`${orientation} ${issue.coachingCue}`), 600)
     return () => clearTimeout(t)
   }, [issue])
 
@@ -128,13 +129,27 @@ export default function CorrectionScreen({ issues, initialScore, onComplete }) {
       {/* ── TOP THIRD: Large coaching cue ── */}
       <div className="relative z-20 pt-14 px-4">
         {phase === 'correcting' && (
-          <div className="bg-black/75 backdrop-blur-md rounded-2xl px-5 py-5 text-center">
-            <p className="text-slate-400 text-xs font-semibold uppercase tracking-wider mb-2">
-              {issue?.label}
-            </p>
-            <p className="text-white text-2xl font-bold leading-snug">
-              {issue?.coachingCue}
-            </p>
+          <div className="bg-black/75 backdrop-blur-md rounded-2xl px-5 py-4 text-center space-y-2">
+            {/* Orientation badge */}
+            <div className="flex items-center justify-center gap-2">
+              {issue?.view === 'side' ? (
+                <span className="flex items-center gap-1.5 bg-blue-500/30 border border-blue-400/50 text-blue-300 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                    <path d="M9 18l6-6-6-6"/>
+                  </svg>
+                  Turn to your side
+                </span>
+              ) : (
+                <span className="flex items-center gap-1.5 bg-green-500/25 border border-green-400/50 text-green-300 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                    <circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+                  </svg>
+                  Face the camera
+                </span>
+              )}
+            </div>
+            <p className="text-slate-400 text-xs font-semibold uppercase tracking-wider">{issue?.label}</p>
+            <p className="text-white text-2xl font-bold leading-snug">{issue?.coachingCue}</p>
           </div>
         )}
 
