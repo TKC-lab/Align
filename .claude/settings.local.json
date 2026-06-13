@@ -7,7 +7,11 @@
       "mcp__Claude_Preview__preview_start",
       "Bash(git add *)",
       "Bash(git commit *)",
-      "Bash(npm run *)"
+      "Bash(npm run *)",
+      "Bash(git -C /Users/jamiekennedy/Documents/Claude/Align add src/utils/audio.js src/screens/SetupScreen.jsx src/screens/ScanScreen.jsx)",
+      "Bash(git -C /Users/jamiekennedy/Documents/Claude/Align status)",
+      "Bash(git -C /Users/jamiekennedy/Documents/Claude/Align add src/components/SilhouetteOverlay.jsx)",
+      "Bash(git -C /Users/jamiekennedy/Documents/Claude/Align commit -m ' *)"
     ]
   }
 }
