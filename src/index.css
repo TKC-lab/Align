@@ -1,0 +1,87 @@
+@import "tailwindcss";
+
+@layer base {
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html, body {
+    overscroll-behavior: none;
+    height: 100%;
+    background: #ffffff;
+  }
+
+  #root {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+@layer utilities {
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .safe-top {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+}
+
+/* Silhouette pulse animation */
+@keyframes silhouette-pulse {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 0.65; }
+}
+
+.silhouette-pulse {
+  animation: silhouette-pulse 2s ease-in-out infinite;
+}
+
+/* Score ring animation */
+@keyframes score-draw {
+  from { stroke-dashoffset: 283; }
+}
+
+/* Skeleton segment flash */
+@keyframes segment-flash {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.segment-flash {
+  animation: segment-flash 0.8s ease-in-out infinite;
+}
+
+/* Smooth page transitions */
+.screen-enter {
+  animation: screen-in 0.3s ease-out forwards;
+}
+
+@keyframes screen-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Countdown ring */
+@keyframes countdown-ring {
+  from { stroke-dashoffset: 0; }
+  to   { stroke-dashoffset: 283; }
+}
+
+/* Hold ring */
+@keyframes hold-ring {
+  from { stroke-dashoffset: 283; }
+  to   { stroke-dashoffset: 0; }
+}
+
+.countdown-ring {
+  animation: countdown-ring linear forwards;
+  transform-origin: center;
+  transform: rotate(-90deg);
+}
+
+.hold-ring {
+  animation: hold-ring 3s linear forwards;
+  transform-origin: center;
+  transform: rotate(-90deg);
+}
