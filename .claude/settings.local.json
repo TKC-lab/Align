@@ -11,7 +11,10 @@
       "Bash(git -C /Users/jamiekennedy/Documents/Claude/Align add src/utils/audio.js src/screens/SetupScreen.jsx src/screens/ScanScreen.jsx)",
       "Bash(git -C /Users/jamiekennedy/Documents/Claude/Align status)",
       "Bash(git -C /Users/jamiekennedy/Documents/Claude/Align add src/components/SilhouetteOverlay.jsx)",
-      "Bash(git -C /Users/jamiekennedy/Documents/Claude/Align commit -m ' *)"
+      "Bash(git -C /Users/jamiekennedy/Documents/Claude/Align commit -m ' *)",
+      "Bash(node -e \"require\\('sharp'\\)\")",
+      "Bash(node -e \"require\\('canvas'\\)\")",
+      "Bash(npm list *)"
     ]
   }
 }
